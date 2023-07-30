@@ -593,7 +593,7 @@ recv_poll_rate: how often to check for new packets. Defaults to 0.05s.
                                       ".scapy_history"))
     padding = 1
     except_filter = ""
-    debug_match = False
+    debug_match = True
     debug_tls = False
     wepkey = ""
     cache_iflist = {}

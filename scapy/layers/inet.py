@@ -501,21 +501,30 @@ class IP(Packet, IPTools):
         return conf.route.route(dst)
 
     def hashret(self):
+        print("**** In hashret self.proto ",self.proto, struct.pack("B", self.proto))
         if ((self.proto == socket.IPPROTO_ICMP) and
             (isinstance(self.payload, ICMP)) and
                 (self.payload.type in [3, 4, 5, 11, 12])):
+            print("**** In hashret socket.IPPROTO_ICMP ",socket.IPPROTO_ICMP, type(self.payload), type(self.payload.payload), self.payload.type)
             return self.payload.payload.hashret()
         if not conf.checkIPinIP and self.proto in [4, 41]:  # IP, IPv6
+            print("**** In hashret conf.checkIPinIP ",conf.checkIPinIP)
             return self.payload.hashret()
         if self.dst == "224.0.0.251":  # mDNS
+            print("**** In hashret self.dst ",self.dst, type(self.payload))
             return struct.pack("B", self.proto) + self.payload.hashret()
         if conf.checkIPsrc and conf.checkIPaddr:
+            print("**** In hashret conf.checkIPsrc ",conf.checkIPsrc, conf.checkIPaddr)
             return (strxor(inet_pton(socket.AF_INET, self.src),
                            inet_pton(socket.AF_INET, self.dst)) +
                     struct.pack("B", self.proto) + self.payload.hashret())
         return struct.pack("B", self.proto) + self.payload.hashret()
 
     def answers(self, other):
+        print("**** In answers other ",type(other), other.summary())
+        print("**** In answers self 1 ",self.proto, self.summary())
+        print("**** In answers self 2 ",self.payload, type(self), type(self.payload))
+        print("**** In answers self 3 ",self.payload.payload, type(self.payload.payload), ": conf.checkIPinIP: " , conf.checkIPinIP)
         if not conf.checkIPinIP:  # skip IP in IP and IPv6 in IP
             if self.proto in [4, 41]:
                 return self.payload.answers(other)

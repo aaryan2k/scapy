@@ -166,6 +166,8 @@ class Ether(Packet):
         return struct.pack("H", self.type) + self.payload.hashret()
 
     def answers(self, other):
+        print(" l2 Ether answers other ",other.type, self.type)
+        print(" l2 Ether answers other ",other.payload, self.payload)
         if isinstance(other, Ether):
             if self.type == other.type:
                 return self.payload.answers(other.payload)

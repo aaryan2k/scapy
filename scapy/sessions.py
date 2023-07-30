@@ -28,18 +28,23 @@ class DefaultSession(object):
         return self.__count
 
     def toPacketList(self):
+        print("toPacketList ", self.lst)
         return PacketList(self.lst, "Sniffed")
 
     def on_packet_received(self, pkt):
         """DEV: entry point. Will be called by sniff() for each
         received packet (that passes the filters).
         """
+
+        print("Sessions: on_packet_received 39 ", pkt.summary())
         if not pkt:
             return
         if isinstance(pkt, list):
             for p in pkt:
+                print("Sessions: on_packet_received default session 44 ", p.summary())
                 DefaultSession.on_packet_received(self, p)
             return
+        print("Sessions: on_packet_received 47 count ", self.__count, self.prn, self.store, "end")
         self.__count += 1
         if self.store:
             self.lst.append(pkt)

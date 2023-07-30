@@ -1603,6 +1603,7 @@ class NoPayload(Packet):
         return b""
 
     def answers(self, other):
+        print(" In packet answeres ", isinstance(other, NoPayload), isinstance(other, conf.padding_layer))
         return isinstance(other, NoPayload) or isinstance(other, conf.padding_layer)  # noqa: E501
 
     def haslayer(self, cls):
@@ -1651,6 +1652,7 @@ class Raw(Packet):
     fields_desc = [StrField("load", "")]
 
     def answers(self, other):
+        print(" In raw answeres - return 1")
         return 1
 #        s = raw(other)
 #        t = self.load

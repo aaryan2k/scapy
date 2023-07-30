@@ -78,7 +78,7 @@ _DOC_SNDRCV_PARAMS = """
 
 class SndRcvHandler(object):
     def __init__(self, pks, pkt,
-                 timeout=None, inter=0, verbose=None,
+                 timeout=None, inter=0, verbose=1,
                  chainCC=False,
                  retry=0, multi=False, rcv_pks=None,
                  prebuild=False, _flood=None,
@@ -114,6 +114,8 @@ class SndRcvHandler(object):
                 )
                 self.notans = self.tobesent.__iterlen__()
 
+
+        print("Within send receive handler 1 ",pks)
         if retry < 0:
             autostop = retry = -retry
         else:
@@ -122,6 +124,9 @@ class SndRcvHandler(object):
         if timeout is not None and timeout < 0:
             self.timeout = None
 
+        print("Within send receive handler 2 ",pks)
+
+        print("Within send receive handler ",self.ans)
         while retry >= 0:
             self.hsent = {}
 
@@ -163,6 +168,7 @@ class SndRcvHandler(object):
             debug.match = SndRcvList(self.ans[:])
 
         # Clean the ans list to delete the field _answered
+        print("Within send receive handler 171 ",self.ans)
         if multi:
             for snd, _ in self.ans:
                 if hasattr(snd, '_answered'):
@@ -175,11 +181,12 @@ class SndRcvHandler(object):
                     self.nbrecv + len(self.ans), len(self.ans), self.notans
                 )
             )
-
+        print("Within send receive handler 3 :183: ",self.ans)
         self.ans_result = SndRcvList(self.ans)
         self.unans_result = PacketList(remain, "Unanswered")
 
     def results(self):
+        print("Within send receive handler 3 ",self.ans_result)
         return self.ans_result, self.unans_result
 
     def _sndrcv_snd(self):
@@ -190,10 +197,12 @@ class SndRcvHandler(object):
             i = 0
             for p in self.tobesent:
                 # Populate the dictionary of _sndrcv_rcv
-                # _sndrcv_rcv won't miss the answer of a packet that
+                # _sndrcv_rcv won't miss the answer of a packet thatx
                 # has not been sent
+                print("In _sndrcv_snd  packets." ,type(p), " hashret ",p.hashret())
                 self.hsent.setdefault(p.hashret(), []).append(p)
                 # Send packet
+                print("In _sndrcv_snd  self.pks :", type(self.pks)," self.inter ",self.inter)
                 self.pks.send(p)
                 time.sleep(self.inter)
                 i += 1
@@ -206,12 +215,16 @@ class SndRcvHandler(object):
 
     def _process_packet(self, r):
         """Internal function used to process each packet."""
+
+        print("In _process_packet  packets." ,r.summary(), type(r), "end")
         if r is None:
             return
         ok = False
         h = r.hashret()
+        print("Send Recv 224 : In _process_packet  hashret ." ,h, self.hsent, "end")
         if h in self.hsent:
             hlst = self.hsent[h]
+            print("Send Recv 227 : In _process_packet  hlist ." ,type(hlst), len(hlst), "end")
             for i, sentpkt in enumerate(hlst):
                 if r.answers(sentpkt):
                     self.ans.append((sentpkt, r))
@@ -239,6 +252,7 @@ class SndRcvHandler(object):
         """Function used to receive packets and check their hashret"""
         self.sniffer = None
         try:
+            print(" sndrcv rcv Strat sniffer 254 ",self, callback)
             self.sniffer = AsyncSniffer()
             self.sniffer._run(
                 prn=self._process_packet,
@@ -259,6 +273,7 @@ def sndrcv(*args, **kwargs):
     more appropriate in many cases.
     """
     sndrcver = SndRcvHandler(*args, **kwargs)
+    print("Within send receive handler 3 ",sndrcver)
     return sndrcver.results()
 
 
@@ -502,6 +517,7 @@ def srp(x, promisc=None, iface=None, iface_hint=None, filter=None,
         iface = conf.route.route(iface_hint)[0]
     s = conf.L2socket(promisc=promisc, iface=iface,
                       filter=filter, nofilter=nofilter, type=type)
+    print("Within srp ",s)
     result = sndrcv(s, x, *args, **kargs)
     s.close()
     return result
@@ -774,6 +790,7 @@ class AsyncSniffer(object):
         session = session(prn, store, *session_args, **session_kwargs)
         # sniff_sockets follows: {socket: label}
         sniff_sockets = {}
+        print("Within run 792 ",opened_socket, sniff_sockets)
         if opened_socket is not None:
             if isinstance(opened_socket, list):
                 sniff_sockets.update(
@@ -787,6 +804,8 @@ class AsyncSniffer(object):
                 )
             else:
                 sniff_sockets[opened_socket] = "socket0"
+
+        print("Within run 807 ",offline, sniff_sockets)        
         if offline is not None:
             flt = karg.get('filter')
             from scapy.arch.common import TCPDUMP
@@ -823,6 +842,7 @@ class AsyncSniffer(object):
                     tcpdump(offline, args=["-w", "-", flt], getfd=True)
                 )] = offline
         if not sniff_sockets or iface is not None:
+            print("Within run 844 ",L2socket, iface)
             if L2socket is None:
                 L2socket = conf.L2listen
             if isinstance(iface, list):
@@ -922,6 +942,7 @@ class AsyncSniffer(object):
                         continue
                     p.sniffed_on = sniff_sockets[s]
                     # on_packet_received handles the prn/storage
+                    print("Within run 940 ",session, p)
                     session.on_packet_received(p)
                     # check
                     if (stop_filter and stop_filter(p)) or \

@@ -389,6 +389,7 @@ class IPv6(_IPv6GuessPayload, Packet, IPTools):
             return struct.pack("B", nh) + self.payload.hashret()
 
     def answers(self, other):
+        print("IPv6.answers 392 ",self, other)
         if not conf.checkIPinIP:  # skip IP in IP and IPv6 in IP
             if self.nh in [4, 41]:
                 return self.payload.answers(other)
@@ -470,6 +471,7 @@ class IPerror6(IPv6):
     name = "IPv6 in ICMPv6"
 
     def answers(self, other):
+        print("IPerror6.answers 474 ",self, other)
         if not isinstance(other, IPv6):
             return False
         sd = inet_pton(socket.AF_INET6, self.dst)
@@ -1327,9 +1329,12 @@ class _ICMPv6(Packet):
 
     def answers(self, other):
         # isinstance(self.underlayer, _IPv6ExtHdr) may introduce a bug ...
+        print("answers of _ICMPv6 called 1332 ", type(other),self.summary(), other.summary(), type(self.underlayer), type(other.underlayer), "end")
+        print("answers of _ICMPv6 called 1333 ", isinstance(self.underlayer, IPerror6), isinstance(self.underlayer, _IPv6ExtHdr), isinstance(other, _ICMPv6),"end")
         if (isinstance(self.underlayer, IPerror6) or
             isinstance(self.underlayer, _IPv6ExtHdr) and
                 isinstance(other, _ICMPv6)):
+            print("answers of _ICMPv6 called 1337 ", self.type, other.type, self.code, other.code, "end")
             if not ((self.type == other.type) and
                     (self.code == other.code)):
                 return 0
@@ -1414,6 +1419,7 @@ class ICMPv6EchoRequest(_ICMPv6):
         return self.sprintf("%name% (id: %id% seq: %seq%)")
 
     def hashret(self):
+        print(struct.pack("HH", self.id, self.seq) + self.payload.hashret())
         return struct.pack("HH", self.id, self.seq) + self.payload.hashret()
 
 
@@ -1423,6 +1429,7 @@ class ICMPv6EchoReply(ICMPv6EchoRequest):
 
     def answers(self, other):
         # We could match data content between request and reply.
+        print("answers of ICMPv6EchoReply called ", type(other),self.summary(), other.summary())
         return (isinstance(other, ICMPv6EchoRequest) and
                 self.id == other.id and self.seq == other.seq and
                 self.data == other.data)
@@ -2057,6 +2064,7 @@ class ICMPv6ND_RA(_ICMPv6NDGuessPayload, _ICMPv6):
     overload_fields = {IPv6: {"nh": 58, "dst": "ff02::1", "hlim": 255}}
 
     def answers(self, other):
+        print("ICMPv6ND_RA.answers 2065  ", other)
         return isinstance(other, ICMPv6ND_RS)
 
     def mysummary(self):
@@ -2100,6 +2108,7 @@ class ICMPv6ND_NA(_ICMPv6NDGuessPayload, _ICMPv6, Packet):
         return bytes_encode(self.tgt) + self.payload.hashret()
 
     def answers(self, other):
+        print("ICMPv6ND_NA.answers 2110  ", other)
         return isinstance(other, ICMPv6ND_NS) and self.tgt == other.tgt
 
 # associated possible options : target link-layer option, Redirected header

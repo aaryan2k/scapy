@@ -53,6 +53,7 @@ def _get_values(value):
 class SetGen(Gen):
     def __init__(self, values, _iterpacket=1):
         self._iterpacket = _iterpacket
+        print("In SetGen ",values, _iterpacket)
         if isinstance(values, (list, BasePacketList)):
             self.values = [_get_values(val) for val in values]
         else:
