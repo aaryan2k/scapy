@@ -1429,7 +1429,7 @@ class ICMPv6EchoReply(ICMPv6EchoRequest):
 
     def answers(self, other):
         # We could match data content between request and reply.
-        print("answers of ICMPv6EchoReply called ", type(other),self.summary(), other.summary())
+        print("answers of ICMPv6EchoReply called ", type(other),self.summary(), other.summary(),isinstance(other, ICMPv6EchoRequest), "end")
         return (isinstance(other, ICMPv6EchoRequest) and
                 self.id == other.id and self.seq == other.seq and
                 self.data == other.data)

@@ -163,6 +163,11 @@ class Ether(Packet):
     __slots__ = ["_defrag_pos"]
 
     def hashret(self):
+        print("166 Ether hashret ",self.type, " self.payload ", self.payload, type(self.payload))
+        h = struct.pack("H", self.type) 
+        print("168 Ether hashret ",h)
+        h1 = self.payload.hashret()
+        print("170 Ether hashret ",h1)
         return struct.pack("H", self.type) + self.payload.hashret()
 
     def answers(self, other):
