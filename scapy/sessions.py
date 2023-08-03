@@ -44,7 +44,7 @@ class DefaultSession(object):
                 print("Sessions: on_packet_received default session 44 ", p.summary())
                 DefaultSession.on_packet_received(self, p)
             return
-        print("Sessions: on_packet_received 47 count ", self.__count, " : self.prn :"self.prn, self.store, "end")
+        print("Sessions: on_packet_received 47 count ", self.__count, " : self.prn : ",self.prn, self.store, "end")
         self.__count += 1
         if self.store:
             self.lst.append(pkt)
